@@ -2,7 +2,6 @@
 
 import React, { useState, useCallback, useMemo, useEffect } from "react";
 import { DndProvider } from "react-dnd";
-import { HTML5Backend } from "react-dnd-html5-backend";
 import { useSpring, animated } from "react-spring";
 import CoinButton from "@/components/CoinButton";
 import DraggableCoin from "@/components/DraggableCoin";
@@ -142,8 +141,6 @@ const PiggyBankApp: React.FC<AppProps> = ({ account }) => {
   useEffect(() => {
     setIsTouchDevice("ontouchstart" in window || navigator.maxTouchPoints > 0);
   }, []);
-
-  const backend = isTouchDevice ? TouchBackend : HTML5Backend;
 
   const backendOptions = {
     enableMouseEvents: true,
