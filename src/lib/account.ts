@@ -1,32 +1,22 @@
+"use server";
+
 import prisma from "@/lib/prisma";
 
-export const getAccount = async (username: string) => {
-  const account = await prisma.accounts.findFirst({
+export const getAccount = async (id: string) => {
+  const account = await prisma.accounts.findUnique({
     where: {
-      user: {
-        username,
-      },
+      id,
     },
   });
   return account;
 };
 
-// Account Error class with appropriate status code
-export class AccountError extends Error {
-  status: number;
-  constructor(message: string, status: number) {
-    super(message);
-    this.status = status;
-  }
-}
+export const applyFunds = async (id: string, cleared: number) => {
+  const account = await getAccount(id);
 
-export const applyFunds = async (username: string, cleared: number) => {
-  const account = await getAccount(username);
-
-  if (!account) throw new AccountError("Account not found", 404);
-  if (account.awarded === 0) throw new AccountError("No funds to clear", 400);
-  if (account.awarded < cleared)
-    throw new AccountError("Insufficient funds", 400);
+  if (!account) throw new Error("Account not found");
+  if (account.awarded === 0) throw new Error("No funds to clear");
+  if (account.awarded < cleared) throw new Error("Insufficient funds");
 
   const acc = await prisma.accounts.update({
     where: {
@@ -41,10 +31,10 @@ export const applyFunds = async (username: string, cleared: number) => {
   return acc;
 };
 
-export const awardFunds = async (username: string, awarded: number) => {
-  const account = await getAccount(username);
+export const awardFunds = async (id: string, awarded: number) => {
+  const account = await getAccount(id);
 
-  if (!account) throw new AccountError("Account not found", 404);
+  if (!account) throw new Error("Account not found");
 
   const acc = await prisma.accounts.update({
     where: {
@@ -58,13 +48,12 @@ export const awardFunds = async (username: string, awarded: number) => {
   return acc;
 };
 
-export const unapplyFunds = async (username: string, amount: number) => {
-  const account = await getAccount(username);
+export const unapplyFunds = async (id: string, amount: number) => {
+  const account = await getAccount(id);
 
-  if (!account) throw new AccountError("Account not found", 404);
-  if (account.balance === 0) throw new AccountError("No funds to unclear", 400);
-  if (account.balance < amount)
-    throw new AccountError("Insufficient funds", 400);
+  if (!account) throw new Error("Account not found");
+  if (account.balance === 0) throw new Error("No funds to unclear");
+  if (account.balance < amount) throw new Error("Insufficient funds");
 
   const acc = await prisma.accounts.update({
     where: {
@@ -73,6 +62,24 @@ export const unapplyFunds = async (username: string, amount: number) => {
     data: {
       awarded: account.awarded + amount,
       balance: account.balance - amount,
+    },
+  });
+
+  return acc;
+};
+
+export const clearFunds = async (id: string) => {
+  const account = await getAccount(id);
+
+  if (!account) throw new Error("Account not found");
+
+  const acc = await prisma.accounts.update({
+    where: {
+      id: account.id,
+    },
+    data: {
+      awarded: 0,
+      balance: 0,
     },
   });
 

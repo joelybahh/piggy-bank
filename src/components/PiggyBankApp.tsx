@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback, useMemo, useEffect } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { useSpring, animated } from "react-spring";
@@ -9,6 +9,7 @@ import DraggableCoin from "@/components/DraggableCoin";
 import PiggyBank from "@/components/PiggyBank";
 import DragPreview from "@/components/DragPreview";
 import { accounts as Account } from "@prisma/client";
+import { TouchBackend } from "react-dnd-touch-backend";
 
 async function updateAccount(url: string, { amount }: { amount: number }) {
   await fetch(url, {
@@ -64,7 +65,7 @@ const PiggyBankApp: React.FC<AppProps> = ({ account }) => {
       cleared: false,
     };
 
-    updateAccount(`/api/accounts/ashton/award`, {
+    updateAccount(`/api/accounts/${account.id}/award`, {
       amount,
     });
 
@@ -77,7 +78,7 @@ const PiggyBankApp: React.FC<AppProps> = ({ account }) => {
       if (balance === 0) return;
       const newDroppedCoins = calculateOptimalChange(balance);
 
-      updateAccount(`/api/accounts/ashton/unapply`, {
+      updateAccount(`/api/accounts/${account.id}/unapply`, {
         amount: balance,
       });
 
@@ -112,7 +113,7 @@ const PiggyBankApp: React.FC<AppProps> = ({ account }) => {
     );
 
     if (!droppedCoin.cleared) {
-      updateAccount(`/api/accounts/ashton/apply`, {
+      updateAccount(`/api/accounts/${account.id}/apply`, {
         amount: droppedCoin.value,
       });
     }
@@ -136,8 +137,24 @@ const PiggyBankApp: React.FC<AppProps> = ({ account }) => {
     );
   }, [droppedCoins]);
 
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
+
+  useEffect(() => {
+    setIsTouchDevice("ontouchstart" in window || navigator.maxTouchPoints > 0);
+  }, []);
+
+  const backend = isTouchDevice ? TouchBackend : HTML5Backend;
+
+  const backendOptions = {
+    enableMouseEvents: true,
+    enableTouchEvents: true,
+    delayTouchStart: 0,
+    ignoreContextMenu: true,
+    touchSlop: 20, // Small movement threshold to differentiate between scroll and drag
+  };
+
   return (
-    <DndProvider backend={HTML5Backend}>
+    <DndProvider backend={backend} options={backendOptions}>
       <div className="flex flex-col items-center justify-center min-h-screen light:bg-gray-100 dark:bg-gray-900 p-4">
         <h1 className="text-4xl font-bold mb-4 light:text-black dark:text-white">
           {account.name}
@@ -158,11 +175,13 @@ const PiggyBankApp: React.FC<AppProps> = ({ account }) => {
           ))}
         </div>
         <div className="mt-8 w-full max-w-2xl">
-          <h2 className="text-2xl font-bold mb-2">Dropped Coins</h2>
-          <div className="flex flex-wrap justify-center light:bg-gray-200 dark:bg-gray-700 p-4 rounded-lg min-h-[200px]">
+          <h2 className="text-2xl font-bold mb-2 light:text-black dark:text-white">
+            Dropped Coins
+          </h2>
+          <div className="flex flex-wrap justify-center light:bg-gray-200 dark:bg-gray-700 p-4 rounded-lg min-h-[200px] touch-pan-y">
             {Object.entries(groupedDroppedCoins).map(([value, coins]) => (
               <div key={value} className="m-2">
-                <p className="text-center font-bold">
+                <p className="text-center font-bold light:text-black dark:text-white">
                   ${Number(value).toFixed(2)} x {coins.length}
                 </p>
                 <div className="flex flex-wrap justify-center">

@@ -52,7 +52,7 @@ const DraggableCoin: React.FC<DraggableCoinProps> = ({ coin }) => {
   return (
     <div
       ref={drag as any}
-      className={getCoinStyle(coin.value)}
+      className={`${getCoinStyle(coin.value)} touch-none`}
       style={{ opacity: isDragging ? 0 : 1 }}
     >
       {parseToReadable(coin.value)}
