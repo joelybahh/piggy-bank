@@ -1,5 +1,3 @@
-// A nextJS 14 app router `route.ts` file
-
 import { awardFunds } from "@/lib/account";
 import { NextRequest } from "next/server";
 
