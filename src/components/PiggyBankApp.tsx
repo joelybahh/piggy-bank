@@ -154,7 +154,7 @@ const PiggyBankApp: React.FC<AppProps> = ({ account }) => {
   };
 
   return (
-    <DndProvider backend={backend} options={backendOptions}>
+    <DndProvider backend={TouchBackend} options={backendOptions}>
       <div className="flex flex-col items-center justify-center min-h-screen light:bg-gray-100 dark:bg-gray-900 p-4">
         <h1 className="text-4xl font-bold mb-4 light:text-black dark:text-white">
           {account.name}
