@@ -5,9 +5,10 @@ const prisma = new PrismaClient();
 async function main() {
   const account = await prisma.accounts.create({
     data: {
-      awarded: 10,
+      awarded: 0,
       balance: 0,
       name: "Ashton's Account",
+      password: "",
     },
   });
 
