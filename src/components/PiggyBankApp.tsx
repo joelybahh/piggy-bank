@@ -50,6 +50,9 @@ const generateDroppedCoins = (amount: number) => {
   return coins;
 };
 
+const depositSound = new Audio("/audio/money-in-1.mp3");
+const shakeSound = new Audio("/audio/shake-moneybox.wav");
+
 const PiggyBankApp: React.FC<AppProps> = ({ account }) => {
   const [balance, setBalance] = useState<number>(account.balance);
   const [shakeCount, setShakeCount] = useState<number>(0);
@@ -72,6 +75,7 @@ const PiggyBankApp: React.FC<AppProps> = ({ account }) => {
   }, []);
 
   const handleShake = useCallback(() => {
+    shakeSound.play();
     setShakeCount((prev) => prev + 1);
     if (shakeCount >= 4) {
       if (balance === 0) return;
@@ -106,6 +110,8 @@ const PiggyBankApp: React.FC<AppProps> = ({ account }) => {
   };
 
   const handleDrop = useCallback((droppedCoin: Coin) => {
+    depositSound.play();
+
     setBalance((prev) => prev + droppedCoin.value);
     setDroppedCoins((prev) =>
       prev.filter((coin) => coin.id !== droppedCoin.id),
