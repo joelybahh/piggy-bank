@@ -9,16 +9,7 @@ import PiggyBank from "@/components/PiggyBank";
 import DragPreview from "@/components/DragPreview";
 import { accounts as Account } from "@prisma/client";
 import { TouchBackend } from "react-dnd-touch-backend";
-
-async function updateAccount(url: string, { amount }: { amount: number }) {
-  await fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ amount }),
-  });
-}
+import { updateAccount } from "@/api";
 
 interface Coin {
   id: string;
@@ -27,7 +18,12 @@ interface Coin {
 }
 
 type AppProps = {
-  account: Account;
+  account: {
+    id: Account["id"];
+    name: Account["name"];
+    balance: Account["balance"];
+    awarded: Account["awarded"];
+  };
 };
 
 const COIN_VALUES = [100, 50, 20, 10, 5, 2, 1, 0.5, 0.2, 0.1, 0.05];
@@ -60,20 +56,6 @@ const PiggyBankApp: React.FC<AppProps> = ({ account }) => {
     generateDroppedCoins(account.awarded),
   );
 
-  const handleAddMoney = useCallback((amount: number) => {
-    const newCoin = {
-      id: `${amount}-${Math.random()}`,
-      value: amount,
-      cleared: false,
-    };
-
-    updateAccount(`/api/accounts/${account.id}/award`, {
-      amount,
-    });
-
-    setDroppedCoins((prev) => [...prev, newCoin]);
-  }, []);
-
   const handleShake = useCallback(() => {
     shakeSound.play();
     setShakeCount((prev) => prev + 1);
@@ -89,7 +71,7 @@ const PiggyBankApp: React.FC<AppProps> = ({ account }) => {
       setBalance(0);
       setShakeCount(0);
     }
-  }, [shakeCount, balance]);
+  }, [account.id, shakeCount, balance]);
 
   const calculateOptimalChange = (amount: number): Coin[] => {
     const coins: Coin[] = [];
@@ -168,15 +150,6 @@ const PiggyBankApp: React.FC<AppProps> = ({ account }) => {
         <animated.div style={wobbleAnimation} onClick={handleShake}>
           <PiggyBank onDrop={handleDrop} />
         </animated.div>
-        <div className="mt-4 flex flex-wrap justify-center">
-          {COIN_VALUES.map((value) => (
-            <CoinButton
-              key={value}
-              value={`$${value.toFixed(2)}`}
-              onClick={() => handleAddMoney(value)}
-            />
-          ))}
-        </div>
         <div className="mt-8 w-full max-w-2xl">
           <h2 className="text-2xl font-bold mb-2 light:text-black dark:text-white">
             Dropped Coins
@@ -184,9 +157,6 @@ const PiggyBankApp: React.FC<AppProps> = ({ account }) => {
           <div className="flex flex-wrap justify-center light:bg-gray-200 dark:bg-gray-700 p-4 rounded-lg min-h-[200px] touch-pan-y">
             {Object.entries(groupedDroppedCoins).map(([value, coins]) => (
               <div key={value} className="m-2">
-                <p className="text-center font-bold light:text-black dark:text-white">
-                  ${Number(value).toFixed(2)} x {coins.length}
-                </p>
                 <div className="flex flex-wrap justify-center">
                   {coins.map((coin) => (
                     <DraggableCoin key={coin.id} coin={coin} />

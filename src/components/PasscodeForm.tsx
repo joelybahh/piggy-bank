@@ -5,9 +5,13 @@ import { useRouter } from "next/navigation";
 
 interface PasscodeFormProps {
   verifyPasscode: (formData: FormData) => Promise<boolean>;
+  title: string;
 }
 
-const PasscodeForm: React.FC<PasscodeFormProps> = ({ verifyPasscode }) => {
+const PasscodeForm: React.FC<PasscodeFormProps> = ({
+  verifyPasscode,
+  title,
+}) => {
   const [passcode, setPasscode] = useState("");
   const [error, setError] = useState("");
   const router = useRouter();
@@ -43,6 +47,7 @@ const PasscodeForm: React.FC<PasscodeFormProps> = ({ verifyPasscode }) => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-blue-100">
+      <h1 className="text-4xl font-bold text-blue-600 mb-8">{title}</h1>
       <div className="bg-white p-8 rounded-lg shadow-lg">
         <h2 className="text-2xl font-bold mb-4 text-center text-blue-600">
           Enter Your Passcode

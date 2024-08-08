@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import prisma from "@/lib/prisma";
 import PasscodeForm from "@/components/PasscodeForm";
 import PiggyBankApp from "@/components/PiggyBankApp";
+import { getAccountAuthed, getAccountPublic } from "@/lib/account";
 
 export default async function AccountPage({
   params,
@@ -13,9 +14,7 @@ export default async function AccountPage({
   const isAuthenticated = cookieStore.get(`auth_${params.account}`);
 
   if (isAuthenticated) {
-    const account = await prisma.accounts.findUnique({
-      where: { id: params.account },
-    });
+    const account = await getAccountAuthed(params.account);
     if (!account) {
       return <div>Account not found</div>;
     }
@@ -30,9 +29,6 @@ export default async function AccountPage({
       select: { passcode: true },
     });
 
-    console.log(account);
-    console.log(inputPasscode);
-
     if (account?.passcode === inputPasscode) {
       cookies().set(`auth_${params.account}`, "true", {
         httpOnly: true,
@@ -45,5 +41,9 @@ export default async function AccountPage({
     return false;
   }
 
-  return <PasscodeForm verifyPasscode={verifyPasscode} />;
+  const account = await getAccountPublic(params.account);
+
+  return (
+    <PasscodeForm verifyPasscode={verifyPasscode} title={account?.name || ""} />
+  );
 }

@@ -2,17 +2,36 @@
 
 import prisma from "@/lib/prisma";
 
-export const getAccount = async (id: string) => {
+export const getAccountPublic = async (id: string) => {
   const account = await prisma.accounts.findUnique({
     where: {
       id,
+    },
+    select: {
+      id: true,
+      name: true,
+    },
+  });
+  return account;
+};
+
+export const getAccountAuthed = async (id: string) => {
+  const account = await prisma.accounts.findUnique({
+    where: {
+      id,
+    },
+    select: {
+      id: true,
+      name: true,
+      balance: true,
+      awarded: true,
     },
   });
   return account;
 };
 
 export const applyFunds = async (id: string, cleared: number) => {
-  const account = await getAccount(id);
+  const account = await getAccountAuthed(id);
 
   if (!account) throw new Error("Account not found");
   if (account.awarded === 0) throw new Error("No funds to clear");
@@ -32,7 +51,7 @@ export const applyFunds = async (id: string, cleared: number) => {
 };
 
 export const awardFunds = async (id: string, awarded: number) => {
-  const account = await getAccount(id);
+  const account = await getAccountAuthed(id);
 
   if (!account) throw new Error("Account not found");
 
@@ -49,7 +68,7 @@ export const awardFunds = async (id: string, awarded: number) => {
 };
 
 export const unapplyFunds = async (id: string, amount: number) => {
-  const account = await getAccount(id);
+  const account = await getAccountAuthed(id);
 
   if (!account) throw new Error("Account not found");
   if (account.balance === 0) throw new Error("No funds to unclear");
@@ -69,7 +88,7 @@ export const unapplyFunds = async (id: string, amount: number) => {
 };
 
 export const clearFunds = async (id: string) => {
-  const account = await getAccount(id);
+  const account = await getAccountAuthed(id);
 
   if (!account) throw new Error("Account not found");
 
