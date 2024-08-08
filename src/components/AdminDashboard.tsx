@@ -1,8 +1,22 @@
 "use client";
 
 import { fetchAccount, updateAccount } from "@/api";
+import { accounts as Account } from "@prisma/client";
+import { useState } from "react";
 
-export default function AdminDashboard({ accountId }: { accountId: string }) {
+export default function AdminDashboard({
+  account,
+}: {
+  account: {
+    id: Account["id"];
+    name: Account["name"];
+    balance: Account["balance"];
+    awarded: Account["awarded"];
+  };
+}) {
+  const [awarded, setAwarded] = useState(account.awarded);
+  const [balance, setBalance] = useState(account.balance);
+
   const handleAward = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -11,20 +25,35 @@ export default function AdminDashboard({ accountId }: { accountId: string }) {
       alert("Amount must be greater than 0");
       return;
     }
-    await updateAccount(`/api/accounts/${accountId}/award`, {
+    const response = await updateAccount(`/api/accounts/${account.id}/award`, {
       amount,
     });
+
+    const data = await response.json();
+    if (response.ok) {
+      setAwarded(data.awarded);
+    } else {
+      alert(data.message);
+    }
   };
 
   const handleClear = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    await fetchAccount(`/api/accounts/${accountId}/clear`);
+    const response = await fetchAccount(`/api/accounts/${account.id}/clear`);
+
+    const data = await response.json();
+    if (response.ok) {
+      setBalance(data.balance);
+      setAwarded(data.awarded);
+    } else {
+      alert(data.message);
+    }
   };
 
   return (
     <div className="p-4 bg-gray-800">
       <h1 className="text-2xl font-bold mb-4">
-        Admin Dashboard for account {accountId}
+        Admin Dashboard for account {account.id}
       </h1>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white p-4 rounded shadow">
@@ -84,7 +113,10 @@ export default function AdminDashboard({ accountId }: { accountId: string }) {
             Track Savings
           </h2>
           <div className="border p-2 rounded">
-            <p className="text-black">Total Savings: $0.00</p>
+            <p className="text-black">
+              Total in Money Box: ${balance.toFixed(2)}
+            </p>
+            <p className="text-black">Total Awarded: ${awarded.toFixed(2)}</p>
             <p className="text-black">Last Transaction: None</p>
           </div>
           {/** Clear account button */}

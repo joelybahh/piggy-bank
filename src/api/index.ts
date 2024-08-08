@@ -2,7 +2,7 @@ export async function updateAccount(
   url: string,
   { amount }: { amount: number },
 ) {
-  await fetch(url, {
+  return await fetch(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -12,6 +12,5 @@ export async function updateAccount(
 }
 
 export async function fetchAccount(url: string) {
-  const res = await fetch(url);
-  return res.json();
+  return await fetch(url);
 }

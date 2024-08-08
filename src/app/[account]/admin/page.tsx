@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import AdminDashboard from "@/components/AdminDashboard";
 import PasswordForm from "@/components/PasswordForm";
 import { isAdminAuthenticated } from "@/lib/auth";
+import { getAccountAuthed } from "@/lib/account";
 
 export default async function AdminPage({
   params,
@@ -12,7 +13,13 @@ export default async function AdminPage({
   const isAuthenticated = cookieStore.get(`admin_auth_${params.account}`);
 
   if (isAuthenticated) {
-    return <AdminDashboard accountId={params.account} />;
+    const account = await getAccountAuthed(params.account);
+
+    if (!account) {
+      return <div>Account not found</div>;
+    }
+
+    return <AdminDashboard account={account} />;
   }
 
   async function authenticate(formData: FormData) {
