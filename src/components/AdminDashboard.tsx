@@ -51,7 +51,7 @@ export default function AdminDashboard({
   };
 
   return (
-    <div className="p-4 bg-gray-800">
+    <div className="p-4 bg-gray-800 h-full">
       <h1 className="text-2xl font-bold mb-4">
         Admin Dashboard for account {account.id}
       </h1>
