@@ -119,16 +119,24 @@ export default function AdminDashboard({
             <p className="text-black">Total Awarded: ${awarded.toFixed(2)}</p>
             <p className="text-black">Last Transaction: None</p>
           </div>
-          {/** Clear account button */}
-
-          <form onSubmit={handleClear}>
-            <button
-              type="submit"
-              className="bg-red-500 text-white p-2 rounded mt-2"
-            >
-              Clear Account
-            </button>
-          </form>
+          <div className="flex gap-4 mt-2">
+            <form action="./">
+              <button
+                type="submit"
+                className="bg-yellow-500 text-white p-2 rounded mt-2"
+              >
+                View Account
+              </button>
+            </form>
+            <form onSubmit={handleClear}>
+              <button
+                type="submit"
+                className="bg-red-500 text-white p-2 rounded mt-2"
+              >
+                Clear Account
+              </button>
+            </form>
+          </div>
         </div>
       </div>
     </div>
