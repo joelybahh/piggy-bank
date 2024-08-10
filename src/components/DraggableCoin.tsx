@@ -56,20 +56,45 @@ const DraggableCoin: React.FC<DraggableCoinProps> = ({
   }));
 
   const longPressTimer = React.useRef<NodeJS.Timeout | null>(null);
+  const touchStartPos = React.useRef<{ x: number; y: number } | null>(null);
+  const [isLongPress, setIsLongPress] = React.useState(false);
 
   useEffect(() => {
     preview(getEmptyImage(), { captureDraggingState: true });
   }, [preview]);
 
-  const startLongPress = () => {
+  const startLongPress = (e: React.TouchEvent | React.MouseEvent) => {
     if (canSplitCoin(coin.value)) {
-      longPressTimer.current = setTimeout(() => onLongHold(coin), 500); // 500ms for long press
+      if (e.type === "touchstart") {
+        const touch = (e as React.TouchEvent).touches[0];
+        touchStartPos.current = { x: touch.clientX, y: touch.clientY };
+      }
+      longPressTimer.current = setTimeout(() => {
+        setIsLongPress(true);
+        onLongHold(coin);
+      }, 500); // 500ms for long press
     }
   };
 
   const endLongPress = () => {
     if (longPressTimer.current) {
       clearTimeout(longPressTimer.current);
+    }
+    touchStartPos.current = null;
+    setIsLongPress(false);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (touchStartPos.current) {
+      const touch = e.touches[0];
+      const moveThreshold = 10; // pixels
+
+      const deltaX = Math.abs(touch.clientX - touchStartPos.current.x);
+      const deltaY = Math.abs(touch.clientY - touchStartPos.current.y);
+
+      if (deltaX > moveThreshold || deltaY > moveThreshold) {
+        endLongPress();
+      }
     }
   };
 
@@ -83,6 +108,7 @@ const DraggableCoin: React.FC<DraggableCoinProps> = ({
       onMouseLeave={endLongPress}
       onTouchStart={startLongPress}
       onTouchEnd={endLongPress}
+      onTouchMove={handleTouchMove}
     >
       {parseToReadable(coin.value)}
     </div>
