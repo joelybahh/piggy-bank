@@ -53,6 +53,34 @@ const PiggyBankApp: React.FC<AppProps> = ({ account }) => {
     generateDroppedCoins(account.awarded),
   );
 
+  const [isDragging, setIsDragging] = useState(false);
+
+  useEffect(() => {
+    const preventScroll = (e: TouchEvent) => {
+      if (isDragging) {
+        e.preventDefault();
+      }
+    };
+
+    if (isDragging) {
+      document.body.style.overflow = "hidden";
+      document.addEventListener("touchmove", preventScroll, { passive: false });
+    }
+
+    return () => {
+      document.body.style.overflow = "";
+      document.removeEventListener("touchmove", preventScroll);
+    };
+  }, [isDragging]);
+
+  const handleDragStart = useCallback(() => {
+    setIsDragging(true);
+  }, []);
+
+  const handleDragEnd = useCallback(() => {
+    setIsDragging(false);
+  }, []);
+
   const goalProgress = useMemo(() => {
     return Math.min(balance / GOAL, 1);
   }, [balance]);
@@ -92,33 +120,38 @@ const PiggyBankApp: React.FC<AppProps> = ({ account }) => {
     return coins;
   };
 
-  const handleDrop = useCallback((droppedCoin: Coin, targetCoin?: Coin) => {
-    depositSound.play();
+  const handleDrop = useCallback(
+    (droppedCoin: Coin, targetCoin?: Coin) => {
+      depositSound.play();
 
-    if (targetCoin) {
-      const combinedCoin = combineCoins(droppedCoin, targetCoin);
-      console.log(combinedCoin);
-      if (combinedCoin) {
-        setDroppedCoins((prevCoins) => [
-          ...prevCoins.filter(
-            (coin) => coin.id !== droppedCoin.id && coin.id !== targetCoin.id,
-          ),
-          combinedCoin,
-        ]);
-      }
-    } else {
-      setBalance((prev) => prev + droppedCoin.value);
-      setDroppedCoins((prev) =>
-        prev.filter((coin) => coin.id !== droppedCoin.id),
-      );
+      if (targetCoin) {
+        const combinedCoin = combineCoins(droppedCoin, targetCoin);
+        console.log(combinedCoin);
+        if (combinedCoin) {
+          setDroppedCoins((prevCoins) => [
+            ...prevCoins.filter(
+              (coin) => coin.id !== droppedCoin.id && coin.id !== targetCoin.id,
+            ),
+            combinedCoin,
+          ]);
+        }
+      } else {
+        setBalance((prev) => prev + droppedCoin.value);
+        setDroppedCoins((prev) =>
+          prev.filter((coin) => coin.id !== droppedCoin.id),
+        );
 
-      if (!droppedCoin.cleared) {
-        updateAccount(`/api/accounts/${account.id}/apply`, {
-          amount: droppedCoin.value,
-        });
+        if (!droppedCoin.cleared) {
+          updateAccount(`/api/accounts/${account.id}/apply`, {
+            amount: droppedCoin.value,
+          });
+        }
       }
-    }
-  }, []);
+
+      handleDragEnd();
+    },
+    [account.id, handleDragEnd],
+  );
 
   const wobbleAnimation = useSpring({
     transform: `rotate(${Math.sin(shakeCount) * 5}deg)`,
@@ -190,6 +223,8 @@ const PiggyBankApp: React.FC<AppProps> = ({ account }) => {
                       coin={coin}
                       onLongHold={handleLongHold}
                       onDrop={(droppedCoin) => handleDrop(droppedCoin, coin)}
+                      onDragStart={handleDragStart}
+                      onDragEnd={handleDragEnd}
                     />
                   ))}
                 </div>

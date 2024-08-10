@@ -9,6 +9,8 @@ interface DraggableCoinProps {
   coin: Coin;
   onLongHold: (coin: Coin) => void;
   onDrop: (droppedCoin: Coin) => void;
+  onDragStart: () => void;
+  onDragEnd: () => void;
 }
 
 export const getCoinStyle = (value: number) => {
@@ -37,13 +39,21 @@ const DraggableCoin: React.FC<DraggableCoinProps> = ({
   coin,
   onLongHold,
   onDrop,
+  onDragStart,
+  onDragEnd,
 }) => {
   const [{ isDragging }, drag, preview] = useDrag(() => ({
     type: "coin",
-    item: coin,
+    item: () => {
+      onDragStart();
+      return coin;
+    },
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),
+    end: (item, monitor) => {
+      onDragEnd();
+    },
   }));
 
   const [, drop] = useDrop(() => ({
