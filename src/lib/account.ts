@@ -2,6 +2,9 @@
 
 import prisma from "@/lib/prisma";
 
+import { accounts as Account, users as User } from "@prisma/client";
+import { hashPassword } from "./auth";
+
 export const getAccountPublic = async (id: string) => {
   const account = await prisma.accounts.findUnique({
     where: {
@@ -103,4 +106,43 @@ export const clearFunds = async (id: string) => {
   });
 
   return acc;
+};
+
+export const createAccount = async (data: Account) => {
+  const password = await hashPassword(data.password);
+  const account = await prisma.accounts.create({
+    data: {
+      ...data,
+      password,
+    },
+  });
+
+  return account;
+};
+
+export const createUser = async (data: User) => {
+  const user = await prisma.users.create({
+    data,
+  });
+
+  return user;
+};
+
+export const createUserAndAccount = async (details: User, acc: Account) => {
+  const account = await createAccount(acc);
+  const user = await prisma.users.create({
+    data: {
+      ...details,
+      account_id: account.id,
+    },
+    include: {
+      account: {
+        select: {
+          id: true,
+        },
+      },
+    },
+  });
+
+  return user;
 };

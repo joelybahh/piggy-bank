@@ -10,12 +10,7 @@ import DragPreview from "@/components/DragPreview";
 import { accounts as Account } from "@prisma/client";
 import { TouchBackend } from "react-dnd-touch-backend";
 import { updateAccount } from "@/api";
-
-interface Coin {
-  id: string;
-  value: number;
-  cleared: boolean;
-}
+import { Coin, combineCoins, splitCoin } from "@/utils";
 
 type AppProps = {
   account: {
@@ -27,6 +22,8 @@ type AppProps = {
 };
 
 const COIN_VALUES = [100, 50, 20, 10, 5, 2, 1, 0.5, 0.2, 0.1, 0.05];
+
+const GOAL = 69;
 
 const generateDroppedCoins = (amount: number) => {
   const coins: Coin[] = [];
@@ -55,6 +52,10 @@ const PiggyBankApp: React.FC<AppProps> = ({ account }) => {
   const [droppedCoins, setDroppedCoins] = useState<Coin[]>(
     generateDroppedCoins(account.awarded),
   );
+
+  const goalProgress = useMemo(() => {
+    return Math.min(balance / GOAL, 1);
+  }, [balance]);
 
   const handleShake = useCallback(() => {
     shakeSound.play();
@@ -91,18 +92,31 @@ const PiggyBankApp: React.FC<AppProps> = ({ account }) => {
     return coins;
   };
 
-  const handleDrop = useCallback((droppedCoin: Coin) => {
+  const handleDrop = useCallback((droppedCoin: Coin, targetCoin?: Coin) => {
     depositSound.play();
 
-    setBalance((prev) => prev + droppedCoin.value);
-    setDroppedCoins((prev) =>
-      prev.filter((coin) => coin.id !== droppedCoin.id),
-    );
+    if (targetCoin) {
+      const combinedCoin = combineCoins(droppedCoin, targetCoin);
+      console.log(combinedCoin);
+      if (combinedCoin) {
+        setDroppedCoins((prevCoins) => [
+          ...prevCoins.filter(
+            (coin) => coin.id !== droppedCoin.id && coin.id !== targetCoin.id,
+          ),
+          combinedCoin,
+        ]);
+      }
+    } else {
+      setBalance((prev) => prev + droppedCoin.value);
+      setDroppedCoins((prev) =>
+        prev.filter((coin) => coin.id !== droppedCoin.id),
+      );
 
-    if (!droppedCoin.cleared) {
-      updateAccount(`/api/accounts/${account.id}/apply`, {
-        amount: droppedCoin.value,
-      });
+      if (!droppedCoin.cleared) {
+        updateAccount(`/api/accounts/${account.id}/apply`, {
+          amount: droppedCoin.value,
+        });
+      }
     }
   }, []);
 
@@ -123,6 +137,17 @@ const PiggyBankApp: React.FC<AppProps> = ({ account }) => {
       {} as Record<number, Coin[]>,
     );
   }, [droppedCoins]);
+
+  const handleLongHold = useCallback((coin: Coin) => {
+    console.log("Long hold", coin);
+    const newCoins = splitCoin(coin);
+    if (newCoins.length > 1) {
+      setDroppedCoins((prevCoins) => [
+        ...prevCoins.filter((c) => c.id !== coin.id),
+        ...newCoins,
+      ]);
+    }
+  }, []);
 
   const [isTouchDevice, setIsTouchDevice] = useState(false);
 
@@ -150,6 +175,7 @@ const PiggyBankApp: React.FC<AppProps> = ({ account }) => {
         <animated.div style={wobbleAnimation} onClick={handleShake}>
           <PiggyBank onDrop={handleDrop} />
         </animated.div>
+        <progress value={goalProgress} />
         <div className="mt-8 w-full max-w-2xl">
           <h2 className="text-2xl font-bold mb-2 light:text-black dark:text-white">
             Dropped Coins
@@ -159,7 +185,12 @@ const PiggyBankApp: React.FC<AppProps> = ({ account }) => {
               <div key={value} className="m-2">
                 <div className="flex flex-wrap justify-center">
                   {coins.map((coin) => (
-                    <DraggableCoin key={coin.id} coin={coin} />
+                    <DraggableCoin
+                      key={coin.id}
+                      coin={coin}
+                      onLongHold={handleLongHold}
+                      onDrop={(droppedCoin) => handleDrop(droppedCoin, coin)}
+                    />
                   ))}
                 </div>
               </div>

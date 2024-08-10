@@ -1,17 +1,14 @@
 "use client";
 import React from "react";
-import { useDrag } from "react-dnd";
+import { useDrag, useDrop } from "react-dnd";
 import { getEmptyImage } from "react-dnd-html5-backend";
 import { useEffect } from "react";
-import { parseToReadable } from "@/utils";
-
-interface Coin {
-  id: string;
-  value: number;
-}
+import { Coin, canSplitCoin, parseToReadable } from "@/utils";
 
 interface DraggableCoinProps {
   coin: Coin;
+  onLongHold: (coin: Coin) => void;
+  onDrop: (droppedCoin: Coin) => void;
 }
 
 export const getCoinStyle = (value: number) => {
@@ -36,7 +33,11 @@ export const getCoinStyle = (value: number) => {
   return `${size} ${color} rounded-full flex items-center justify-center font-bold border-2 ${border} cursor-move m-1`;
 };
 
-const DraggableCoin: React.FC<DraggableCoinProps> = ({ coin }) => {
+const DraggableCoin: React.FC<DraggableCoinProps> = ({
+  coin,
+  onLongHold,
+  onDrop,
+}) => {
   const [{ isDragging }, drag, preview] = useDrag(() => ({
     type: "coin",
     item: coin,
@@ -45,15 +46,43 @@ const DraggableCoin: React.FC<DraggableCoinProps> = ({ coin }) => {
     }),
   }));
 
+  const [, drop] = useDrop(() => ({
+    accept: "coin",
+    drop: (item: Coin) => {
+      if (item.id !== coin.id) {
+        onDrop(item);
+      }
+    },
+  }));
+
+  const longPressTimer = React.useRef<NodeJS.Timeout | null>(null);
+
   useEffect(() => {
     preview(getEmptyImage(), { captureDraggingState: true });
   }, [preview]);
 
+  const startLongPress = () => {
+    if (canSplitCoin(coin.value)) {
+      longPressTimer.current = setTimeout(() => onLongHold(coin), 500); // 500ms for long press
+    }
+  };
+
+  const endLongPress = () => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+    }
+  };
+
   return (
     <div
-      ref={drag as any}
-      className={`${getCoinStyle(coin.value)}`}
+      ref={(node) => drag(drop(node)) as any}
+      className={`${getCoinStyle(coin.value)} ${canSplitCoin(coin.value) ? "cursor-pointer" : ""}`}
       style={{ opacity: isDragging ? 0 : 1 }}
+      onMouseDown={startLongPress}
+      onMouseUp={endLongPress}
+      onMouseLeave={endLongPress}
+      onTouchStart={startLongPress}
+      onTouchEnd={endLongPress}
     >
       {parseToReadable(coin.value)}
     </div>

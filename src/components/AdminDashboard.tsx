@@ -138,6 +138,12 @@ export default function AdminDashboard({
             </form>
           </div>
         </div>
+        <div className="bg-white p-4 rounded shadow">
+          <h2 className="text-xl font-semibold mb-2 text-black">Add Account</h2>
+        </div>
+        <div className="bg-white p-4 rounded shadow">
+          <h2 className="text-xl font-semibold mb-2 text-black">Setup Goal</h2>
+        </div>
       </div>
     </div>
   );
