@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma";
 import PasscodeForm from "@/components/PasscodeForm";
 import PiggyBankApp from "@/components/PiggyBankApp";
 import { getAccountAuthed, getAccountPublic } from "@/lib/account";
+import { notFound } from "next/navigation";
 
 export default async function AccountPage({
   params,
@@ -42,6 +43,9 @@ export default async function AccountPage({
   }
 
   const account = await getAccountPublic(params.account);
+  if (!account) {
+    return notFound();
+  }
 
   return (
     <PasscodeForm verifyPasscode={verifyPasscode} title={account?.name || ""} />

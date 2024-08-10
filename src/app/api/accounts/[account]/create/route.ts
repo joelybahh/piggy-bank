@@ -1,4 +1,4 @@
-import { awardFunds } from "@/lib/account";
+import { awardFunds, createUserAndAccount } from "@/lib/account";
 import { isAdminAuthenticated } from "@/lib/auth";
 import { NextRequest } from "next/server";
 
@@ -14,12 +14,7 @@ export async function POST(
     return new Response("Unauthorized", { status: 401 });
   }
 
-  const total = Number(body.amount);
-  if (isNaN(total)) {
-    return new Response("Invalid awarded amount", { status: 400 });
-  }
-
-  const res = await awardFunds(account, total);
+  const res = await createUserAndAccount(body.user, body.account);
 
   return Response.json(res);
 }
