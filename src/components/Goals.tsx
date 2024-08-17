@@ -1,7 +1,7 @@
 "use client";
 
 import { accounts as Account, goals as DbGoals } from "@prisma/client";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 type GoalsProps = {
   account: {
@@ -28,9 +28,16 @@ const Goals: React.FC<GoalsProps> = ({ account, onClickComplete }) => {
 const Goal: React.FC<
   DbGoals & { total: number; onClickComplete: () => void }
 > = ({ title, total, amount, completed, onClickComplete }) => {
+  const [goalComplete, setGoalComplete] = useState(completed);
+
   const goalProgress = useMemo(() => {
     return (total / amount) * 100;
   }, [total, amount]);
+
+  const handleClickComplete = () => {
+    onClickComplete();
+    setGoalComplete(true);
+  };
 
   return (
     <div className="flex flex-col items-center">
@@ -38,12 +45,12 @@ const Goal: React.FC<
         <h2>
           {title}: ${amount.toFixed(2)}
         </h2>
-        {!completed && (
+        {!goalComplete && (
           <>
             {total >= amount ? (
               <button
                 className="px-4 py-2 mt-2 text-white bg-blue-500 rounded hover:bg-blue-700"
-                onClick={onClickComplete}
+                onClick={handleClickComplete}
               >
                 Complete Goal
               </button>
@@ -54,7 +61,7 @@ const Goal: React.FC<
             )}
           </>
         )}
-        {completed && (
+        {goalComplete && (
           <div className="flex text-center justify-center items-center mt-2 text-green-600">
             <svg
               className="w-6 h-6 mr-2"
