@@ -3,14 +3,14 @@
 import React, { useState, useCallback, useMemo, useEffect } from "react";
 import { DndProvider } from "react-dnd";
 import { useSpring, animated } from "react-spring";
-import CoinButton from "@/components/CoinButton";
 import DraggableCoin from "@/components/DraggableCoin";
 import PiggyBank from "@/components/PiggyBank";
 import DragPreview from "@/components/DragPreview";
-import { accounts as Account } from "@prisma/client";
+import { accounts as Account, goals } from "@prisma/client";
 import { TouchBackend } from "react-dnd-touch-backend";
-import { updateAccount } from "@/api";
+import { updateAccount, putAccount } from "@/api";
 import { Coin, combineCoins, splitCoin } from "@/utils";
+import Goals from "./Goals";
 
 type AppProps = {
   account: {
@@ -18,12 +18,11 @@ type AppProps = {
     name: Account["name"];
     balance: Account["balance"];
     awarded: Account["awarded"];
+    goals: goals[];
   };
 };
 
 const COIN_VALUES = [100, 50, 20, 10, 5, 2, 1, 0.5, 0.2, 0.1, 0.05];
-
-const GOAL = 69;
 
 const generateDroppedCoins = (amount: number) => {
   const coins: Coin[] = [];
@@ -80,10 +79,6 @@ const PiggyBankApp: React.FC<AppProps> = ({ account }) => {
   const handleDragEnd = useCallback(() => {
     setIsDragging(false);
   }, []);
-
-  const goalProgress = useMemo(() => {
-    return Math.min(balance / GOAL, 1);
-  }, [balance]);
 
   const handleShake = useCallback(() => {
     shakeSound.play();
@@ -184,6 +179,17 @@ const PiggyBankApp: React.FC<AppProps> = ({ account }) => {
 
   const [isTouchDevice, setIsTouchDevice] = useState(false);
 
+  const handleGoalComplete = async (goal_id: string) => {
+    const response = await putAccount(
+      `/api/accounts/${account.id}/goals/${goal_id}/complete`,
+    );
+
+    if (response.ok) {
+      const body = await response.json();
+      setBalance(body.balance);
+    }
+  };
+
   useEffect(() => {
     setIsTouchDevice("ontouchstart" in window || navigator.maxTouchPoints > 0);
   }, []);
@@ -208,7 +214,13 @@ const PiggyBankApp: React.FC<AppProps> = ({ account }) => {
         <animated.div style={wobbleAnimation} onClick={handleShake}>
           <PiggyBank onDrop={handleDrop} />
         </animated.div>
-        <progress value={goalProgress} />
+        <Goals
+          account={{
+            ...account,
+            balance,
+          }}
+          onClickComplete={handleGoalComplete}
+        />
         <div className="mt-8 w-full max-w-2xl">
           <h2 className="text-2xl font-bold mb-2 light:text-black dark:text-white">
             Dropped Coins

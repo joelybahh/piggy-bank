@@ -28,6 +28,7 @@ export const getAccountAuthed = async (id: string) => {
       name: true,
       balance: true,
       awarded: true,
+      goals: true,
     },
   });
   return account;
@@ -145,4 +146,40 @@ export const createUserAndAccount = async (details: User, acc: Account) => {
   });
 
   return user;
+};
+
+export const completeGoal = async (account_id: string, goal_id: string) => {
+  const account = await getAccountAuthed(account_id);
+
+  if (!account) throw new Error("Account not found");
+
+  const goal = await prisma.goals.findUnique({
+    where: {
+      id: goal_id,
+    },
+  });
+
+  if (!goal) throw new Error("Goal not found");
+  if (account.balance < goal.amount) throw new Error("Insufficient funds");
+
+  const acc = await prisma.accounts.update({
+    where: {
+      id: account.id,
+    },
+    data: {
+      balance: account.balance - goal.amount,
+    },
+  });
+
+  // update goal to mark it as completed
+  await prisma.goals.update({
+    data: {
+      completed: true,
+    },
+    where: {
+      id: goal.id,
+    },
+  });
+
+  return acc;
 };

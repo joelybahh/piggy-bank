@@ -11,6 +11,16 @@ export async function updateAccount(
   });
 }
 
+export async function putAccount(url: string, body?: any) {
+  return await fetch(url, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+}
+
 export async function fetchAccount(url: string) {
   return await fetch(url);
 }
