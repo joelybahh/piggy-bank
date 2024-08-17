@@ -2,6 +2,7 @@
 
 import { accounts as Account, goals as DbGoals } from "@prisma/client";
 import { useMemo, useState } from "react";
+import Confetti from "./Confetti";
 
 type GoalsProps = {
   account: {
@@ -62,23 +63,26 @@ const Goal: React.FC<
           </>
         )}
         {goalComplete && (
-          <div className="flex text-center justify-center items-center mt-2 text-green-600">
-            <svg
-              className="w-6 h-6 mr-2"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M5 13l4 4L19 7"
-              ></path>
-            </svg>
-            <p>Goal Completed!</p>
-          </div>
+          <>
+            <div className="flex text-center justify-center items-center mt-2 text-green-600">
+              <svg
+                className="w-6 h-6 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M5 13l4 4L19 7"
+                ></path>
+              </svg>
+              <p>Goal Completed!</p>
+            </div>
+            <Confetti />
+          </>
         )}
       </div>
     </div>
