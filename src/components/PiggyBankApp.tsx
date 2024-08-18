@@ -9,8 +9,15 @@ import DragPreview from "@/components/DragPreview";
 import { accounts as Account, goals } from "@prisma/client";
 import { TouchBackend } from "react-dnd-touch-backend";
 import { updateAccount, putAccount } from "@/api";
-import { Coin, combineCoins, splitCoin } from "@/utils";
+import {
+  calculateOptimalChange,
+  Coin,
+  combineCoins,
+  generateDroppedCoins,
+  splitCoin,
+} from "@/utils";
 import Goals from "./Goals";
+import { SfxKey, soundManager } from "@/audio";
 
 type AppProps = {
   account: {
@@ -21,29 +28,6 @@ type AppProps = {
     goals: goals[];
   };
 };
-
-const COIN_VALUES = [100, 50, 20, 10, 5, 2, 1, 0.5, 0.2, 0.1, 0.05];
-
-const generateDroppedCoins = (amount: number) => {
-  const coins: Coin[] = [];
-  let remainingAmount = Math.round(amount * 100) / 100; // Round to 2 decimal places
-
-  COIN_VALUES.forEach((coinValue) => {
-    while (remainingAmount >= coinValue) {
-      coins.push({
-        id: `${coinValue}-${Math.random()}`,
-        value: coinValue,
-        cleared: false,
-      });
-      remainingAmount = Math.round((remainingAmount - coinValue) * 100) / 100;
-    }
-  });
-
-  return coins;
-};
-
-const depositSound = new Audio("/audio/money-in-1.mp3");
-const shakeSound = new Audio("/audio/shake-moneybox.wav");
 
 const PiggyBankApp: React.FC<AppProps> = ({ account }) => {
   const [balance, setBalance] = useState<number>(account.balance);
@@ -81,7 +65,7 @@ const PiggyBankApp: React.FC<AppProps> = ({ account }) => {
   }, []);
 
   const handleShake = useCallback(() => {
-    shakeSound.play();
+    soundManager.play(SfxKey.Shake);
     setShakeCount((prev) => prev + 1);
     if (shakeCount >= 4) {
       if (balance === 0) return;
@@ -97,31 +81,12 @@ const PiggyBankApp: React.FC<AppProps> = ({ account }) => {
     }
   }, [account.id, shakeCount, balance]);
 
-  const calculateOptimalChange = (amount: number): Coin[] => {
-    const coins: Coin[] = [];
-    let remainingAmount = Math.round(amount * 100) / 100; // Round to 2 decimal places
-
-    COIN_VALUES.forEach((coinValue) => {
-      while (remainingAmount >= coinValue) {
-        coins.push({
-          id: `${coinValue}-${Math.random()}`,
-          value: coinValue,
-          cleared: false,
-        });
-        remainingAmount = Math.round((remainingAmount - coinValue) * 100) / 100;
-      }
-    });
-
-    return coins;
-  };
-
   const handleDrop = useCallback(
     (droppedCoin: Coin, targetCoin?: Coin) => {
-      depositSound.play();
+      soundManager.play(SfxKey.Deposit);
 
       if (targetCoin) {
         const combinedCoin = combineCoins(droppedCoin, targetCoin);
-        console.log(combinedCoin);
         if (combinedCoin) {
           setDroppedCoins((prevCoins) => [
             ...prevCoins.filter(
@@ -167,7 +132,6 @@ const PiggyBankApp: React.FC<AppProps> = ({ account }) => {
   }, [droppedCoins]);
 
   const handleLongHold = useCallback((coin: Coin) => {
-    console.log("Long hold", coin);
     const newCoins = splitCoin(coin);
     if (newCoins.length > 1) {
       setDroppedCoins((prevCoins) => [
@@ -176,8 +140,6 @@ const PiggyBankApp: React.FC<AppProps> = ({ account }) => {
       ]);
     }
   }, []);
-
-  const [isTouchDevice, setIsTouchDevice] = useState(false);
 
   const handleGoalComplete = async (goal_id: string) => {
     const response = await putAccount(
@@ -190,16 +152,12 @@ const PiggyBankApp: React.FC<AppProps> = ({ account }) => {
     }
   };
 
-  useEffect(() => {
-    setIsTouchDevice("ontouchstart" in window || navigator.maxTouchPoints > 0);
-  }, []);
-
   const backendOptions = {
     enableMouseEvents: true,
     enableTouchEvents: true,
     delayTouchStart: 0,
     ignoreContextMenu: true,
-    touchSlop: 20, // Small movement threshold to differentiate between scroll and drag
+    touchSlop: 20,
   };
 
   return (

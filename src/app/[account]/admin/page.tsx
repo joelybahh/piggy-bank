@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 import AdminDashboard from "@/components/AdminDashboard";
 import PasswordForm from "@/components/PasswordForm";
 import { isAdminAuthenticated } from "@/lib/auth";
-import { getAccountAuthed } from "@/lib/account";
+import { getAccountAuthed } from "@/lib/actions";
 
 export default async function AdminPage({
   params,

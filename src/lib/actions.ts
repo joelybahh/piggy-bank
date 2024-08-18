@@ -2,7 +2,11 @@
 
 import prisma from "@/lib/prisma";
 
-import { accounts as Account, users as User } from "@prisma/client";
+import {
+  accounts as Account,
+  goals as Goal,
+  users as User,
+} from "@prisma/client";
 import { hashPassword } from "./auth";
 
 export const getAccountPublic = async (id: string) => {
@@ -182,4 +186,31 @@ export const completeGoal = async (account_id: string, goal_id: string) => {
   });
 
   return acc;
+};
+
+export const createGoal = async (account_id: string, data: Goal) => {
+  const account = await getAccountAuthed(account_id);
+  if (!account) throw new Error("Account not found");
+
+  const goal = await prisma.goals.create({
+    data: {
+      ...data,
+      account_id,
+    },
+  });
+
+  return goal;
+};
+
+export const getAllAccounts = async () => {
+  const accounts = await prisma.accounts.findMany({
+    select: {
+      id: true,
+      name: true,
+      balance: true,
+      awarded: true,
+    },
+  });
+
+  return accounts;
 };

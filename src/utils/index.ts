@@ -70,3 +70,41 @@ export function getNextDenomination(value: number): number | null {
 export function canSplitCoin(value: number): boolean {
   return getNextDenomination(value) !== null;
 }
+
+export const COIN_VALUES = [100, 50, 20, 10, 5, 2, 1, 0.5, 0.2, 0.1, 0.05];
+
+export const generateDroppedCoins = (amount: number) => {
+  const coins: Coin[] = [];
+  let remainingAmount = Math.round(amount * 100) / 100; // Round to 2 decimal places
+
+  COIN_VALUES.forEach((coinValue) => {
+    while (remainingAmount >= coinValue) {
+      coins.push({
+        id: `${coinValue}-${Math.random()}`,
+        value: coinValue,
+        cleared: false,
+      });
+      remainingAmount = Math.round((remainingAmount - coinValue) * 100) / 100;
+    }
+  });
+
+  return coins;
+};
+
+export const calculateOptimalChange = (amount: number): Coin[] => {
+  const coins: Coin[] = [];
+  let remainingAmount = Math.round(amount * 100) / 100; // Round to 2 decimal places
+
+  COIN_VALUES.forEach((coinValue) => {
+    while (remainingAmount >= coinValue) {
+      coins.push({
+        id: `${coinValue}-${Math.random()}`,
+        value: coinValue,
+        cleared: false,
+      });
+      remainingAmount = Math.round((remainingAmount - coinValue) * 100) / 100;
+    }
+  });
+
+  return coins;
+};

@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import prisma from "@/lib/prisma";
 import PasscodeForm from "@/components/PasscodeForm";
 import PiggyBankApp from "@/components/PiggyBankApp";
-import { getAccountAuthed, getAccountPublic } from "@/lib/account";
+import { getAccountAuthed, getAccountPublic } from "@/lib/actions";
 import { notFound } from "next/navigation";
 
 export default async function AccountPage({

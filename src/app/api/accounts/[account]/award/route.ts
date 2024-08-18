@@ -1,4 +1,4 @@
-import { awardFunds } from "@/lib/account";
+import { awardFunds } from "@/lib/actions";
 import { isAdminAuthenticated } from "@/lib/auth";
 import { NextRequest } from "next/server";
 

@@ -1,4 +1,4 @@
-import { clearFunds } from "@/lib/account";
+import { clearFunds } from "@/lib/actions";
 import { isAdminAuthenticated } from "@/lib/auth";
 import { NextRequest } from "next/server";
 

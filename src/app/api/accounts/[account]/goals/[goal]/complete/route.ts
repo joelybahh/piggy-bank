@@ -1,4 +1,4 @@
-import { completeGoal, unapplyFunds } from "@/lib/account";
+import { completeGoal, unapplyFunds } from "@/lib/actions";
 import { NextRequest } from "next/server";
 
 export async function PUT(

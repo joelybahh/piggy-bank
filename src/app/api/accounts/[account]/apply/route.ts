@@ -1,4 +1,4 @@
-import { applyFunds } from "@/lib/account";
+import { applyFunds } from "@/lib/actions";
 import { NextRequest } from "next/server";
 
 export async function POST(

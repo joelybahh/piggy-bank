@@ -1,4 +1,4 @@
-import { awardFunds, createUserAndAccount } from "@/lib/actions";
+import { createGoal } from "@/lib/actions";
 import { isAdminAuthenticated } from "@/lib/auth";
 import { NextRequest } from "next/server";
 
@@ -14,7 +14,7 @@ export async function POST(
     return new Response("Unauthorized", { status: 401 });
   }
 
-  const res = await createUserAndAccount(body.user, body.account);
+  const res = await createGoal(account, body);
 
   return Response.json(res);
 }
