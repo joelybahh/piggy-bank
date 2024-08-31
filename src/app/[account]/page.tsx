@@ -1,4 +1,3 @@
-// src/app/[account]/page.tsx
 import { cookies } from "next/headers";
 import prisma from "@/lib/prisma";
 import PasscodeForm from "@/components/PasscodeForm";

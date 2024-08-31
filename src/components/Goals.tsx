@@ -30,6 +30,7 @@ const Goal: React.FC<
   DbGoals & { total: number; onClickComplete: () => void }
 > = ({ title, total, amount, completed, onClickComplete }) => {
   const [goalComplete, setGoalComplete] = useState(completed);
+  const [confettiActive, setConfettiActive] = useState(false);
 
   const goalProgress = useMemo(() => {
     return (total / amount) * 100;
@@ -38,6 +39,7 @@ const Goal: React.FC<
   const handleClickComplete = () => {
     onClickComplete();
     setGoalComplete(true);
+    setConfettiActive(true);
   };
 
   return (
@@ -81,7 +83,7 @@ const Goal: React.FC<
               </svg>
               <p>Goal Completed!</p>
             </div>
-            <Confetti />
+            {confettiActive && <Confetti />}
           </>
         )}
       </div>
