@@ -84,7 +84,7 @@ const PiggyBankApp: React.FC<AppProps> = ({ account }) => {
       setBalance(0);
       setShakeCount(0);
     }
-  }, [account.id, shakeCount, balance]);
+  }, [account.id, soundManager, shakeCount, balance]);
 
   const handleDrop = useCallback(
     (droppedCoin: Coin, targetCoin?: Coin) => {
@@ -115,7 +115,7 @@ const PiggyBankApp: React.FC<AppProps> = ({ account }) => {
 
       handleDragEnd();
     },
-    [account.id, handleDragEnd],
+    [account.id, soundManager, handleDragEnd],
   );
 
   const wobbleAnimation = useSpring({
