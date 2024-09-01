@@ -3,14 +3,14 @@
 import prisma from "@/lib/prisma";
 
 import {
-  accounts as Account,
-  goals as Goal,
-  users as User,
+  Account,
+  Goal,
+  User,
 } from "@prisma/client";
 import { hashPassword } from "./auth";
 
 export const getAccountPublic = async (id: string) => {
-  const account = await prisma.accounts.findUnique({
+  const account = await prisma.account.findUnique({
     where: {
       id,
     },
@@ -23,7 +23,7 @@ export const getAccountPublic = async (id: string) => {
 };
 
 export const getAccountAuthed = async (id: string) => {
-  const account = await prisma.accounts.findUnique({
+  const account = await prisma.account.findUnique({
     where: {
       id,
     },
@@ -45,7 +45,7 @@ export const applyFunds = async (id: string, cleared: number) => {
   if (account.awarded === 0) throw new Error("No funds to clear");
   if (account.awarded < cleared) throw new Error("Insufficient funds");
 
-  const acc = await prisma.accounts.update({
+  const acc = await prisma.account.update({
     where: {
       id: account.id,
     },
@@ -63,7 +63,7 @@ export const awardFunds = async (id: string, awarded: number) => {
 
   if (!account) throw new Error("Account not found");
 
-  const acc = await prisma.accounts.update({
+  const acc = await prisma.account.update({
     where: {
       id: account.id,
     },
@@ -82,7 +82,7 @@ export const unapplyFunds = async (id: string, amount: number) => {
   if (account.balance === 0) throw new Error("No funds to unclear");
   if (account.balance < amount) throw new Error("Insufficient funds");
 
-  const acc = await prisma.accounts.update({
+  const acc = await prisma.account.update({
     where: {
       id: account.id,
     },
@@ -100,7 +100,7 @@ export const clearFunds = async (id: string) => {
 
   if (!account) throw new Error("Account not found");
 
-  const acc = await prisma.accounts.update({
+  const acc = await prisma.account.update({
     where: {
       id: account.id,
     },
@@ -115,7 +115,7 @@ export const clearFunds = async (id: string) => {
 
 export const createAccount = async (data: Account) => {
   const password = await hashPassword(data.password);
-  const account = await prisma.accounts.create({
+  const account = await prisma.account.create({
     data: {
       ...data,
       password,
@@ -126,7 +126,7 @@ export const createAccount = async (data: Account) => {
 };
 
 export const createUser = async (data: User) => {
-  const user = await prisma.users.create({
+  const user = await prisma.user.create({
     data,
   });
 
@@ -135,7 +135,7 @@ export const createUser = async (data: User) => {
 
 export const createUserAndAccount = async (details: User, acc: Account) => {
   const account = await createAccount(acc);
-  const user = await prisma.users.create({
+  const user = await prisma.user.create({
     data: {
       ...details,
       account_id: account.id,
@@ -157,7 +157,7 @@ export const completeGoal = async (account_id: string, goal_id: string) => {
 
   if (!account) throw new Error("Account not found");
 
-  const goal = await prisma.goals.findUnique({
+  const goal = await prisma.goal.findUnique({
     where: {
       id: goal_id,
     },
@@ -166,7 +166,7 @@ export const completeGoal = async (account_id: string, goal_id: string) => {
   if (!goal) throw new Error("Goal not found");
   if (account.balance < goal.amount) throw new Error("Insufficient funds");
 
-  const acc = await prisma.accounts.update({
+  const acc = await prisma.account.update({
     where: {
       id: account.id,
     },
@@ -176,7 +176,7 @@ export const completeGoal = async (account_id: string, goal_id: string) => {
   });
 
   // update goal to mark it as completed
-  await prisma.goals.update({
+  await prisma.goal.update({
     data: {
       completed: true,
     },
@@ -192,7 +192,7 @@ export const createGoal = async (account_id: string, data: Goal) => {
   const account = await getAccountAuthed(account_id);
   if (!account) throw new Error("Account not found");
 
-  const goal = await prisma.goals.create({
+  const goal = await prisma.goal.create({
     data: {
       ...data,
       account_id,
@@ -203,7 +203,7 @@ export const createGoal = async (account_id: string, data: Goal) => {
 };
 
 export const getAllAccounts = async () => {
-  const accounts = await prisma.accounts.findMany({
+  const accounts = await prisma.account.findMany({
     select: {
       id: true,
       name: true,

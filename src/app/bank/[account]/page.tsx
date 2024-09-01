@@ -24,7 +24,7 @@ export default async function AccountPage({
   async function verifyPasscode(formData: FormData) {
     "use server";
     const inputPasscode = formData.get("passcode") as string;
-    const account = await prisma.accounts.findUnique({
+    const account = await prisma.account.findUnique({
       where: { id: params.account },
       select: { passcode: true },
     });

@@ -38,3 +38,6 @@ next-env.d.ts
 
 #CodeBuddy
 cb.config.js
+
+.vercel
+.env*.local

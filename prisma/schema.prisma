@@ -8,17 +8,33 @@ datasource db {
   directUrl = env("POSTGRES_PRISMA_DIRECT_URL")
 }
 
-model users {
+model User {
   id         String    @id @default(cuid())
   username   String    @unique
   password   String
+  sessions   Session[]
   created_at DateTime  @default(now())
   updated_at DateTime  @updatedAt
   account_id String?   @unique
-  account    accounts? @relation(fields: [account_id], references: [id])
+  account    Account? @relation(fields: [account_id], references: [id])
+
+  @@map("users")
 }
 
-model accounts {
+model Session {
+  id         String   @id
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  expiresAt  DateTime
+  lastUsedAt DateTime @default(now())
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  @@map("sessions")
+}
+
+model Account {
   id         String   @id @default(cuid())
   name       String
   balance    Float
@@ -27,11 +43,13 @@ model accounts {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
   passcode   String?
-  goals      goals[]
-  user       users?
+  goals      Goal[]
+  user       User?
+
+  @@map("accounts")
 }
 
-model goals {
+model Goal {
   id         String   @id @default(cuid())
   title      String
   completed  Boolean
@@ -39,5 +57,7 @@ model goals {
   updated_at DateTime @updatedAt
   account_id String
   amount     Float
-  account    accounts @relation(fields: [account_id], references: [id])
+  account    Account @relation(fields: [account_id], references: [id])
+
+  @@map("goals")
 }

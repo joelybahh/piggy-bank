@@ -6,7 +6,7 @@ import { useSpring, animated } from "react-spring";
 import DraggableCoin from "@/components/DraggableCoin";
 import PiggyBank from "@/components/PiggyBank";
 import DragPreview from "@/components/DragPreview";
-import { accounts as Account, goals } from "@prisma/client";
+import { Account, Goal as goals } from "@prisma/client";
 import { TouchBackend } from "react-dnd-touch-backend";
 import { updateAccount, putAccount } from "@/api";
 import {
@@ -17,7 +17,8 @@ import {
   splitCoin,
 } from "@/utils";
 import Goals from "./Goals";
-import { SfxKey, soundManager } from "@/audio";
+import { useSound } from "@/hooks/useSound";
+import { SfxKey } from "@/audio";
 
 type AppProps = {
   account: {
@@ -35,6 +36,10 @@ const PiggyBankApp: React.FC<AppProps> = ({ account }) => {
   const [droppedCoins, setDroppedCoins] = useState<Coin[]>(
     generateDroppedCoins(account.awarded),
   );
+
+  const { 
+    soundManager,
+  } = useSound();
 
   const [isDragging, setIsDragging] = useState(false);
 
@@ -65,7 +70,7 @@ const PiggyBankApp: React.FC<AppProps> = ({ account }) => {
   }, []);
 
   const handleShake = useCallback(() => {
-    soundManager.play(SfxKey.Shake);
+    soundManager?.play(SfxKey.Shake);
     setShakeCount((prev) => prev + 1);
     if (shakeCount >= 4) {
       if (balance === 0) return;
@@ -83,7 +88,7 @@ const PiggyBankApp: React.FC<AppProps> = ({ account }) => {
 
   const handleDrop = useCallback(
     (droppedCoin: Coin, targetCoin?: Coin) => {
-      soundManager.play(SfxKey.Deposit);
+      soundManager?.play(SfxKey.Deposit);
 
       if (targetCoin) {
         const combinedCoin = combineCoins(droppedCoin, targetCoin);
