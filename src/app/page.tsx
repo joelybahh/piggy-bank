@@ -204,7 +204,7 @@ type PricingCardProps = {
 const PricingCard: React.FC<PricingCardProps> = ({ title, price, period, features, cta, highlighted = false }) => (
   <div className={`bg-white p-8 rounded-lg shadow-lg w-full md:w-96 ${highlighted ? 'ring-2 ring-purple-500' : ''}`}>
     <h3 className="text-2xl font-bold text-purple-700 mb-4">{title}</h3>
-    <p className="text-4xl font-bold mb-1">{price}</p>
+    <p className="text-4xl font-bold mb-1 text-black">{price}</p>
     <p className="text-xl text-gray-500 mb-6">{period}</p>
     <ul className="mb-8">
       {features.map((feature, index) => (
