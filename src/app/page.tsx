@@ -47,7 +47,7 @@ export default async function LandingPage() {
               </div>
               <div className="bg-purple-50 p-6 rounded-lg">
                 <h3 className="text-xl font-semibold mb-4">Parental Peace of Mind</h3>
-                <p className="text-gray-600">No real money means no unexpected charges or overspending. You're always in control of your family's finances.</p>
+                <p className="text-gray-600">No real money means no unexpected charges or overspending. You&apos;re always in control of your family&apos;s finances.</p>
               </div>
               <div className="bg-purple-50 p-6 rounded-lg">
                 <h3 className="text-xl font-semibold mb-4">Teaches Real-World Skills</h3>
@@ -101,7 +101,7 @@ export default async function LandingPage() {
             <div className="flex justify-center">
               <div className="bg-white p-8 rounded-lg shadow-lg max-w-2xl">
                 <p className="text-gray-600 italic mb-4">
-                  "Piggy Bank has transformed how we talk about money in our family. Our 5-year-old is learning concepts I didn't understand until adulthood!"
+                &quot;Piggy Bank has transformed how we talk about money in our family. Our 5-year-old is learning concepts I didn&apos;t understand until adulthood!&quot;
                 </p>
                 <p className="font-semibold text-purple-600">- Emma, mother of two</p>
               </div>
@@ -148,7 +148,7 @@ export default async function LandingPage() {
         {/* CTA Section */}
         <section className="py-16">
           <div className="container mx-auto px-4 text-center">
-            <h2 className="text-3xl font-bold text-purple-700 mb-4">Ready to Empower Your Kids' Financial Future?</h2>
+            <h2 className="text-3xl font-bold text-purple-700 mb-4">Ready to Empower Your Kids&apos; Financial Future?</h2>
             <p className="text-xl text-gray-600 mb-8">Join thousands of Aussie families teaching real money skills in a safe, fun environment.</p>
             <button className="bg-purple-600 text-white px-6 py-3 rounded-full text-lg font-semibold hover:bg-purple-700 transition duration-300">
               Start Your 45-Day Free Trial Now
