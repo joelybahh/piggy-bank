@@ -1,7 +1,7 @@
 "use client";
 
 import { fetchAccount, updateAccount } from "@/api";
-import { accounts as Account } from "@prisma/client";
+import { Account } from "@prisma/client";
 import { useState } from "react";
 
 export default function AdminDashboard({
