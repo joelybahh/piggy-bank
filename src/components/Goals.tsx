@@ -1,6 +1,6 @@
 "use client";
 
-import { accounts as Account, goals as DbGoals } from "@prisma/client";
+import { Account, Goal as DbGoals } from "@prisma/client";
 import { useMemo, useState } from "react";
 import Confetti from "./Confetti";
 
