@@ -38,19 +38,19 @@ export default async function LandingPage() {
             <h2 className="text-3xl font-bold text-center text-purple-700 mb-12">Why Choose Piggy Bank?</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="bg-purple-50 p-6 rounded-lg">
-                <h3 className="text-xl font-semibold mb-4">Safe Learning Environment</h3>
+                <h3 className="text-xl font-semibold mb-4 text-black">Safe Learning Environment</h3>
                 <p className="text-gray-600">Kids learn financial concepts without the risks of real money transactions. Perfect for building confidence and skills.</p>
               </div>
               <div className="bg-purple-50 p-6 rounded-lg">
-                <h3 className="text-xl font-semibold mb-4">For All Ages, Even Under 6</h3>
+                <h3 className="text-xl font-semibold mb-4 text-black">For All Ages, Even Under 6</h3>
                 <p className="text-gray-600">Unlike other apps restricted by banking laws, Piggy Bank is suitable for children of all ages. Start financial education early!</p>
               </div>
               <div className="bg-purple-50 p-6 rounded-lg">
-                <h3 className="text-xl font-semibold mb-4">Parental Peace of Mind</h3>
+                <h3 className="text-xl font-semibold mb-4 text-black">Parental Peace of Mind</h3>
                 <p className="text-gray-600">No real money means no unexpected charges or overspending. You&apos;re always in control of your family&apos;s finances.</p>
               </div>
               <div className="bg-purple-50 p-6 rounded-lg">
-                <h3 className="text-xl font-semibold mb-4">Teaches Real-World Skills</h3>
+                <h3 className="text-xl font-semibold mb-4 text-black">Teaches Real-World Skills</h3>
                 <p className="text-gray-600">From budgeting to goal-setting, Piggy Bank instills valuable financial habits that last a lifetime.</p>
               </div>
             </div>
@@ -175,7 +175,7 @@ type FeatureCardProps = {
 const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description }) => (
   <div className="bg-purple-50 p-6 rounded-lg text-center">
     <div className="text-4xl mb-4">{icon}</div>
-    <h3 className="text-xl font-semibold mb-2">{title}</h3>
+    <h3 className="text-xl font-semibold mb-2 text-black">{title}</h3>
     <p className="text-gray-600">{description}</p>
   </div>
 );
